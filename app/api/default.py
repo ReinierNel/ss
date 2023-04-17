@@ -31,33 +31,45 @@ def init():
     admin_roles = {
         'admin-rw-groups': {
             'fid': 0,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         },
         'admin-rw-member': {
             'fid': 1,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         },
         'admin-rw-role': {
             'fid': 2    ,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         },
         'admin-rw-assign': {
             'fid': 3    ,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         },
         'admin-rw-user': {
             'fid': 4    ,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         },
         'admin-rw-secret': {
             'fid': 5    ,
+            'create': True,
             'read': True,
-            'write': True
+            'update': True,
+            'delete': True
         }
     }
 
@@ -90,18 +102,17 @@ def init():
         
         # add admin roles
         for role in admin_roles:
-            try:
-                crud.create_role(
-                    db,
-                    schemas.Role(
-                        name=role,
-                        fid=admin_roles[role]["fid"],
-                        read=admin_roles[role]["read"],
-                        write=admin_roles[role]["write"],
-                    )
+            crud.create_role(
+                db,
+                schemas.Role(
+                    name=role,
+                    fid=admin_roles[role]["fid"],
+                    create=admin_roles[role]["create"],
+                    read=admin_roles[role]["read"],
+                    update=admin_roles[role]["update"],
+                    delete=admin_roles[role]["delete"],
                 )
-            except:
-                pass
+            )
 
         # add admin group
         try:

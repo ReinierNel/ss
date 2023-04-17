@@ -31,9 +31,9 @@ def rest_put(url: str, path: str, headers: dict, body: dict, status_code: int):
     if response.status_code == status_code:
         return True
     elif response.status_code == 401:
-        print(typer.style(f"ERROR:    you are not authorized to perform this action`", fg=typer.colors.RED))
-    elif response.status_code == 403:
         print(typer.style(f"ERROR:    authentication failed`", fg=typer.colors.RED))
+    elif response.status_code == 403:
+        print(typer.style(f"ERROR:    you are not authorized to perform this action`", fg=typer.colors.RED))
     elif response.status_code == 404:
         print(typer.style(f"ERROR:    endpoint not found`", fg=typer.colors.RED))
     elif response.status_code == 500:
@@ -146,8 +146,10 @@ def role(
         id : int = typer.Argument(..., help="ID of role to update"),
         name: str = typer.Option(..., help="Name of role"),
         function_id: int = typer.Option(..., help="ID of function"),
-        read: bool = typer.Option(False, help="This role has read Access read access"),
-        write: bool = typer.Option(False, help="This role has write access")
+        create: bool = typer.Argument(False, help="Allow Create"),
+        read: bool = typer.Argument(False, help="Allow Read"),
+        update: bool = typer.Argument(False, help="Allow Update"),
+        delete: bool = typer.Argument(False, help="Allow Delete"),
     ):
     """
     Update a role
@@ -164,10 +166,12 @@ def role(
 
     body = {
         "id": 0,
-        "name": "string",
+        "name": name,
         "fid": function_id,
+        "create": create,
         "read": read,
-        "write": write,
+        "update": update,
+        "delete": delete
     }
 
     if rest_put(url=url, path=function, headers=headers, body=body, status_code=201):

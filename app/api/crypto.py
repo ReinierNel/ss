@@ -5,7 +5,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
 import base64
-import hashlib
 import bcrypt
 
 def get_hashed_password(plain_text_password):

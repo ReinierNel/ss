@@ -31,9 +31,9 @@ def rest_post(url: str, path: str, headers: dict, body: dict, status_code: int):
     if response.status_code == status_code:
         return True
     elif response.status_code == 401:
-        print(typer.style(f"ERROR:    you are not authorized to perform this action`", fg=typer.colors.RED))
-    elif response.status_code == 403:
         print(typer.style(f"ERROR:    authentication failed`", fg=typer.colors.RED))
+    elif response.status_code == 403:
+        print(typer.style(f"ERROR:    you are not authorized to perform this action`", fg=typer.colors.RED))
     elif response.status_code == 404:
         print(typer.style(f"ERROR:    endpoint not found`", fg=typer.colors.RED))
     elif response.status_code == 500:
@@ -130,8 +130,10 @@ def member(
 def role(
         name: str = typer.Argument(..., help="Role Name"),
         function_id: int = typer.Argument(..., help="Finction ID"),
+        create: bool = typer.Argument(False, help="Allow Create"),
         read: bool = typer.Argument(False, help="Allow Read"),
-        write: bool = typer.Argument(False, help="Allow write")
+        update: bool = typer.Argument(False, help="Allow Update"),
+        delete: bool = typer.Argument(False, help="Allow Delete"),
     ):
     """
     Create/add a new role
@@ -146,8 +148,11 @@ def role(
     body = {
         "name": name,
         "fid": function_id,
+        "create": create,
         "read": read,
-        "write": write,
+        "update": update,
+        "delete": delete
+        
     }
 
     if rest_post(url=url, path=function, headers=headers, body=body, status_code=201):

@@ -135,8 +135,10 @@ def create_role(db: Session, role=schemas.Role):
     data = models.Role(
         name = role.name,
         fid = role.fid,
+        create = role.create,
         read = role.read,
-        write = role.write
+        update = role.update,
+        delete = role.delete
     )
     db.add(data)
     db.commit()
@@ -209,6 +211,9 @@ def read_assign_by_fid(db: Session, fid: int):
 
 def read_assign_by_gid(db: Session, gid: int):
     return db.query(models.Assign).filter(models.Assign.gid == gid).all()
+
+def read_assign_by_uid(db: Session, uid: int):
+    return db.query(models.Assign).filter(models.Assign.uid == uid).all()
 
 ## update
 def update_assign_by_id(db: Session, assign=schemas.Assign):

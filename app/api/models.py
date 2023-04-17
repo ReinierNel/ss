@@ -81,8 +81,10 @@ class Role(Base):
     id = Column(Integer, Identity(start=0, cycle=True),primary_key=True, index=True, )
     name = Column(String, index=True, unique=True)
     fid = Column(Integer, ForeignKey("function.id") , index=True, )
+    create = Column(Boolean)
     read = Column(Boolean)
-    write = Column(Boolean)
+    update = Column(Boolean)
+    delete = Column(Boolean)
     modified = Column(DateTime(timezone=True), onupdate=func.now())
     created = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -100,6 +102,7 @@ class Assign(Base):
     id = Column(Integer, Identity(start=0, cycle=True),primary_key=True, index=True, )
     rid = Column(Integer, ForeignKey("role.id"))
     gid = Column(Integer, ForeignKey("group.id"))
+    uid = Column(Integer, ForeignKey("user.id"))
     modified = Column(DateTime(timezone=True), onupdate=func.now())
     created = Column(DateTime(timezone=True), server_default=func.now())
 

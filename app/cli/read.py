@@ -35,9 +35,9 @@ def rest_get(url: str, path: str, headers: dict, status_code: int):
     if response.status_code == status_code:
         return response.json()
     elif response.status_code == 401:
-        print(typer.style(f"ERROR:    you are not authorized to perform this action", fg=typer.colors.RED))
+        print(typer.style(f"ERROR:    authentication failed`", fg=typer.colors.RED))
     elif response.status_code == 403:
-        print(typer.style(f"ERROR:    authentication failed", fg=typer.colors.RED))
+        print(typer.style(f"ERROR:    you are not authorized to perform this action`", fg=typer.colors.RED))
     elif response.status_code == 404:
         print(typer.style(f"ERROR:    endpoint not found", fg=typer.colors.RED))
     elif response.status_code == 500:
@@ -413,8 +413,8 @@ def role(
             ))
 
         if output == 'table':
-            table = Table("ID", "Name", "Function ID", "Read", "Write", "Modified", "Created")
-            table.add_row(str(data['id']), data['name'], str(data['fid']), str(data['read']), str(data['write']), data['modified'], data['created'])
+            table = Table("ID", "Name", "Function ID", "Create", "Read", "Update", "Delete", "Modified", "Created")
+            table.add_row(str(data['id']), data['name'], str(data['fid']), str(data['create']), str(data['read']), str(data['update']), str(data['delete']), str(data['write']), data['modified'], data['created'])
             console.print(table)
             
     else:

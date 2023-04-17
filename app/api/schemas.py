@@ -24,15 +24,18 @@ class Role(BaseModel):
     id: int | None = None
     name: str
     fid: int
+    create: bool
     read: bool
-    write: bool
+    update: bool
+    delete: bool
     modified: datetime.datetime | None = None
     created: datetime.datetime | None = None
 
 class Assign(BaseModel):
     id: int | None = None
     rid: int
-    gid: int
+    gid: int | None = -999
+    uid: int | None = -999
     modified: datetime.datetime | None = None
     created: datetime.datetime | None = None
 
