@@ -8,8 +8,15 @@ logging.basicConfig(format=LOG_FORMAT, level=LOG_LEVEL)
 
 def check_user(db: Session, name: str, password: str):
     check_user = crud.read_user_by_name(db, name)
+    private_key = crud.read_setting_by_name(db, "private_key")
+    logging.debug(f'encrypted password is {check_user.hash}')
+    decrypted_pwd = crypto.decrypt(
+        bytes(private_key.value, encoding="UTF-8"),
+        check_user.hash
+    )
+    logging.debug(f'decrypted password is {decrypted_pwd}')
     try:
-        if crypto.check_password(password, check_user.hash):
+        if crypto.check_password(password, decrypted_pwd):
             logging.debug(f'user {name} password match')
             return True
         else:

@@ -52,7 +52,6 @@ docker exec ss-api-server cat /app/README.md
 
 ### Potential Improvements
 
-- Extend RBAC to secrets
 - Encrypt user hashes in DB
 - Add Terraform Remote State endpoint (store terrform remote state as an encrypted secret basicly)
 - Terraform provider

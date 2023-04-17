@@ -10,9 +10,9 @@ models.Base.metadata.create_all(bind=engine)
 default.init()
 
 app = FastAPI(
-    title="Simple Secrets CRUD",
-    description="This is the CRUD API used by Simple Secers CLI tool",
-    version="v0.0.1",
+    title="SS API",
+    description="SS or Simple Secrets",
+    version="v0.0.2",
 )
 
 # Dependency

@@ -163,10 +163,7 @@ curl -X 'PUT' \\
 
 """)
         rand_pwd_file.close()
-        try:
-            crud.create_user(db, schemas.User(name="admin", hash=rand_pwd))
-        except:
-            pass
+        crud.create_user(db, schemas.User(name="admin", hash=rand_pwd))
 
         # member admin user to admins group
         try:
