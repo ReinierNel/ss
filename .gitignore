@@ -6,3 +6,4 @@ __pycache__
 /lib64
 /pyvenv.cfg
 settings.json
+/app/api/README.md

@@ -10,9 +10,9 @@ models.Base.metadata.create_all(bind=engine)
 default.init()
 
 app = FastAPI(
-    title="Simple Secrets CRUD",
-    description="This is the CRUD API used by Simple Secers CLI tool",
-    version="v0.0.1",
+    title="SS API",
+    description="SS or Simple Secrets",
+    version="v0.0.2",
 )
 
 # Dependency
@@ -23,6 +23,14 @@ def get_db():
     finally:
         db.close()
 
+def get_rbac(function_id: int, db: Session, api_user: str, api_password: str, create = False, read = False, update = False, delete = False):
+
+    if not rbac.check_user(db, api_user, api_password):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    if not rbac.check_rbac(db, api_user, function_id, create, read, update, delete):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
 # Group
 @app.post("/group/", status_code=status.HTTP_201_CREATED, tags=["Group"])
 def create_group(
@@ -31,16 +39,14 @@ def create_group(
         api_user: str | None = Header(default=None, convert_underscores=True),
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
-    
-    function_id = 0
-    read = False
-    write = True
 
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=0,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
 
     return crud.create_group(db, group)
 
@@ -53,15 +59,13 @@ def read_groups(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 0
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=0,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
 
     return crud.read_groups(db, skip, limit)
 
@@ -73,15 +77,13 @@ def read_group_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 0
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=0,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_group_by_id(db, id)
     return fetch.__dict__
@@ -94,15 +96,13 @@ def update_group_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 0
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=0,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     update = crud.update_group_by_id(db, group)
     return update.__dict__
@@ -115,15 +115,13 @@ def delete_group_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 0
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=0,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_group_by_id(db, id):
         return {'detail': 'deleted'}
@@ -143,15 +141,13 @@ def create_member(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 1
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=1,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
     
     return crud.create_member(db, member)
 
@@ -164,15 +160,13 @@ def read_member(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 1
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=1,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     return crud.read_member(db, skip, limit)
 
@@ -184,15 +178,13 @@ def read_member_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 1
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=1,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_member_by_id(db, id)
     fetch.__dict__
@@ -206,15 +198,13 @@ def update_member_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 1
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=1,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     update = crud.update_member_by_id(db, member)
     return update.__dict__
@@ -227,15 +217,13 @@ def delete_member_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 1
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=1,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_member_by_id(db, id):
         return {'detail': 'deleted'}
@@ -285,15 +273,13 @@ def create_role(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 2
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=2,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
     
     return crud.create_role(db, member)
 
@@ -306,15 +292,13 @@ def read_role(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 2
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=2,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     return crud.read_role(db, skip, limit)
 
@@ -326,15 +310,13 @@ def read_role_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 2
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=2,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_role_by_id(db, id)
     fetch.__dict__
@@ -348,15 +330,13 @@ def update_role_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 2
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=2,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     update = crud.update_role_by_id(db, role)
     return update.__dict__
@@ -369,22 +349,18 @@ def delete_role_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 2
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=2,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_role_by_id(db, id):
         return {'detail': 'deleted'}
     else:
         raise HTTPException(status_code=500, detail="failed deletion")
-
-
 
 
 
@@ -397,15 +373,13 @@ def create_assign(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 3
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=3,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
     
     return crud.create_assign(db, assign)
 
@@ -418,15 +392,13 @@ def read_assign(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 3
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=3,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     return crud.read_assign(db, skip, limit)
 
@@ -438,15 +410,13 @@ def read_assign_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 3
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=3,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_assign_by_id(db, id)
     fetch.__dict__
@@ -460,15 +430,13 @@ def update_assign_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 3
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=3,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     update = crud.update_assign_by_id(db, assign)
     return update.__dict__
@@ -481,15 +449,13 @@ def delete_member_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 3
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=3,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_role_by_id(db, id):
         return {'detail': 'deleted'}
@@ -508,15 +474,13 @@ def create_user(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 4
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=4,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
     
     return crud.create_user(db, user)
 
@@ -529,15 +493,14 @@ def read_user(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 4
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
+    get_rbac(
+        function_id=4,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
     fetch = crud.read_user(db, skip, limit)
     data = []
     for value in fetch:
@@ -559,15 +522,13 @@ def read_user_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 4
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=4,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_user_by_id(db, id)
     data = fetch.__dict__
@@ -582,15 +543,13 @@ def update_user_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 4
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=4,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     update = crud.update_user_by_id(db, user)
     return update.__dict__
@@ -603,15 +562,13 @@ def delete_user_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 4
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=4,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_user_by_id(db, id):
         return {'detail': 'deleted'}
@@ -631,15 +588,13 @@ def create_secret(
         server_side_encryption: bool | None = Header(default=False, convert_underscores=True),
     ):
     
-    function_id = 5
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=5,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        create=True
+    )
     
     if server_side_encryption:
         pub_key = crud.read_setting_by_name(db, "public_key")
@@ -672,15 +627,14 @@ def read_secret(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 5
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
+    get_rbac(
+        function_id=5,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
     fetch = crud.read_secret(db, skip, limit)
     data = []
     for values in fetch:
@@ -695,43 +649,6 @@ def read_secret(
 
     return data
 
-# TODO fix bug with secret by id
-#@app.get("/secret/{id}", status_code=status.HTTP_200_OK, tags=["Secret"], response_model=schemas.Secret)
-#def read_secret_by_id(
-#        id: int,
-#        db: Session = Depends(get_db),
-#        api_user: str | None = Header(default=None, convert_underscores=True),
-#        api_password: str | None = Header(default=None, convert_underscores=True),
-#        server_side_encryption: bool | None = Header(default=False, convert_underscores=True),
-#    ):
-#    
-#    function_id = 5
-#    read = True
-#    write = False
-#
-#    if not rbac.check_user(db, api_user, api_password):
-#        raise HTTPException(status_code=403, detail="Forbidden")
-#    
-#    if not rbac.check_rbac(db, api_user, function_id, read, write):
-#        raise HTTPException(status_code=401, detail="Unauthorized")
-#    
-#    if server_side_encryption:
-#        private_key = crud.read_setting_by_name(db, "private_key")
-#        encrypted_data = crud.read_secret_by_id(db, id)
-#        data = schemas.Secret(
-#            id=encrypted_data.id,
-#            name=encrypted_data.name,
-#            value=crypto.decrypt(
-#                bytes(private_key.value, "UTF-8"),
-#                encrypted_data.value
-#            ),
-#            modified=encrypted_data.modified
-#        )
-#        return data
-#    
-#    fetch = crud.read_secret_by_id(db, id)
-#    return fetch.__dict__
-
 # response_model=schemas.Secret
 @app.get("/secret/{name}", status_code=status.HTTP_200_OK, tags=["Secret"], response_model=schemas.Secret)
 def read_secret_by_name(
@@ -741,15 +658,13 @@ def read_secret_by_name(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 5
-    read = True
-    write = False
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=5,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        read=True
+    )
     
     fetch = crud.read_secret_by_name(db, name)
 
@@ -779,15 +694,13 @@ def update_secret_by_id(
         server_side_encryption: bool | None = Header(default=False, convert_underscores=True),
     ):
     
-    function_id = 5
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=5,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        update=True
+    )
     
     if server_side_encryption:
         pub_key = crud.read_setting_by_name(db, "public_key")
@@ -821,15 +734,13 @@ def delete_secret_by_id(
         api_password: str | None = Header(default=None, convert_underscores=True),
     ):
     
-    function_id = 5
-    read = False
-    write = True
-
-    if not rbac.check_user(db, api_user, api_password):
-        raise HTTPException(status_code=403, detail="Forbidden")
-    
-    if not rbac.check_rbac(db, api_user, function_id, read, write):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    get_rbac(
+        function_id=5,
+        db=db,
+        api_user=api_user,
+        api_password=api_password,
+        delete=True
+    )
     
     if crud.delete_secret_by_id(db, id):
         return {'detail': 'deleted'}

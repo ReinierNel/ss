@@ -3,7 +3,6 @@ import models, schemas, crypto
 
 
 
-
 # groups
 ## create
 def create_group(db: Session, group=schemas.Group):
@@ -36,7 +35,6 @@ def delete_group_by_id(db: Session, id: int):
     except:
         return False
     return True
-
 
 
 
@@ -82,7 +80,6 @@ def delete_member_by_id(db: Session, id: int):
 
 
 
-
 # Function
 ## create
 def create_function(db: Session, id: int, name: str):
@@ -101,7 +98,6 @@ def read_function(db: Session, skip: int = 0, limit: int = 10):
 
 def read_function_by_id(db: Session, id: int):
     return db.query(models.Function).filter(models.Function.id == id).first()
-
 
 
 
@@ -135,8 +131,10 @@ def create_role(db: Session, role=schemas.Role):
     data = models.Role(
         name = role.name,
         fid = role.fid,
+        create = role.create,
         read = role.read,
-        write = role.write
+        update = role.update,
+        delete = role.delete
     )
     db.add(data)
     db.commit()
@@ -181,7 +179,6 @@ def delete_role_by_id(db: Session, id: int):
 
 
 
-
 # assign
 ## create
 def create_assign(db: Session, assing=schemas.Assign):
@@ -210,6 +207,9 @@ def read_assign_by_fid(db: Session, fid: int):
 def read_assign_by_gid(db: Session, gid: int):
     return db.query(models.Assign).filter(models.Assign.gid == gid).all()
 
+def read_assign_by_uid(db: Session, uid: int):
+    return db.query(models.Assign).filter(models.Assign.uid == uid).all()
+
 ## update
 def update_assign_by_id(db: Session, assign=schemas.Assign):
     db.query(models.Assign).filter(models.Assign.id == assign.id).update({
@@ -231,14 +231,19 @@ def delete_assign_by_id(db: Session, id: int):
 
 
 
-
 # user
 ## create
 def create_user(db: Session, user=schemas.User):
+    public_key = read_setting_by_name(db, "public_key")
+    hashed_pwd = crypto.get_hashed_password(user.hash)
+    encrypted_pwd = crypto.encrypt(
+        bytes(public_key.value, encoding="UTF-8"),
+        bytes(hashed_pwd, encoding="UTF-8")
+    )
 
     data = models.User(
         name = user.name,
-        hash = crypto.get_hashed_password(user.hash),
+        hash = encrypted_pwd,
     )
     db.add(data)
     db.commit()
@@ -257,9 +262,16 @@ def read_user_by_name(db: Session, name: str):
 
 ## update
 def update_user_by_id(db: Session, user=schemas.User):
+    public_key = read_setting_by_name(db, "public_key")
+    hashed_pwd = crypto.get_hashed_password(user.hash)
+    encrypted_pwd = crypto.encrypt(
+        bytes(public_key.value, encoding="UTF-8"),
+        bytes(hashed_pwd, encoding="UTF-8")
+    )
+
     db.query(models.User).filter(models.User.id == user.id).update({
         "name": user.name,
-        'hash': crypto.get_hashed_password(user.hash)
+        'hash': encrypted_pwd,
     })
     db.commit()
     return db.query(models.User).filter(models.User.id == user.id).first()
